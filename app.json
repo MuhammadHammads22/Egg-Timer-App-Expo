@@ -24,7 +24,6 @@
       }
     },
     "android": {
-       
       "permissions": [
         "INTERNET",
         "RECEIVE_BOOT_COMPLETED",
@@ -79,9 +78,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "35606c50-1b16-42a5-b142-203920cb7233"
+        "projectId": "d138977a-1080-48aa-829d-8f4ed5698c3a"
       }
     },
-    "owner": "vratant-kubeshot"
+    "owner": "fissionfox"
   }
 }

@@ -19,6 +19,10 @@ import BottomBar from "./BottomBar";
 import { Audio } from "expo-av";
 import * as Notifications from 'expo-notifications';
 import i18n from '../i18nConfig';
+import './BackGroundTask'
+import * as TaskManager from 'expo-task-manager';
+import _BackgroundTimer from "react-native-background-timer";
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -50,6 +54,7 @@ Notifications.setNotificationHandler({
 
 const Timer = ({ route }) => {
   const navigation = useNavigation();
+  let timerId;
   const [heading, setHeading] = useState(route.params?.heading || "");
   const [subHeading, setSubHeading] = useState(route.params?.subHeading || "");
   const [timeLeft, setTimeLeft] = useState(route.params?.time || 180);
@@ -100,14 +105,6 @@ const Timer = ({ route }) => {
     console.log('Notification permissions granted.');
   };
 
-  // useEffect(() => {
-  //   setupNotifications();
-  //   return () => {
-  //     cancelNotification();
-  //     if (intervalRef.current) clearInterval(intervalRef.current);
-  //     stopSound();
-  //   };
-  // }, []);
 
   useEffect(() => {
     setupNotifications();
@@ -139,6 +136,10 @@ const Timer = ({ route }) => {
         nextAppState === "active"
       ) {
         console.log("App has come to the foreground!");
+       timerId&&(
+        // console.log("timer"+timerId)
+        _BackgroundTimer.clearTimeout(timerId)
+       )
         const now = Date.now();
         const timePassed = (now - lastUpdatedTime.current) / 1000;
         timeLeftRef.current = Math.max(0, timeLeftRef.current - Math.floor(timePassed));
@@ -157,6 +158,7 @@ const Timer = ({ route }) => {
       } else if (nextAppState === "background") {
         // Schedule a notification for the remaining time when the app goes to background
         if (timeLeftRef.current > 0) {
+          console.log(timeLeftRef.current)
           await scheduleNotification(timeLeftRef.current);
         }
       }
@@ -197,20 +199,24 @@ const Timer = ({ route }) => {
     if (seconds > 0 && !isPaused && !notificationScheduled.current) {
       await cancelNotification();
       const currentTime = Date.now();
-      const triggerDate = new Date(currentTime + (seconds + 1) * 1000);
-      notificationId.current = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: i18n.t('Timer Alert'),
-          body: getTitle(),
+      const triggerDate = new Date(currentTime + (seconds) * 1000);
+      timerId=_BackgroundTimer.setTimeout(()=>{
+      triggerNotification()
+      // notificationScheduled.current = true;
+      },seconds*1000)
+      // notificationId.current = await Notifications.scheduleNotificationAsync({
+      //   content: {
+      //     title: i18n.t('Timer Alert'),
+      //     body: getTitle(),
           
-          sound: 'clucking.wav',
-          data: { useCustomSound: true },
-        },
-        trigger: {
-          date: triggerDate,
-        },
-      });
-      notificationScheduled.current = true;
+      //     sound: 'clucking.wav',
+      //     data: { useCustomSound: true },
+      //   },
+      //   trigger: {
+      //     date: triggerDate,
+      //   },
+      // });
+      
       console.log("Notification scheduled for", triggerDate);
       console.log("current time : ", new Date(currentTime));
       console.log("Notification ID: ", notificationId.current);
@@ -238,7 +244,10 @@ const Timer = ({ route }) => {
         },
         trigger: null,
       });
-
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      startFadeOutAnimation();
+      playCompletionSound();
+      animateSpokes(1);
 
     } catch (error) {
       console.error("Error triggering notification: ", error);
@@ -656,3 +665,4 @@ const styles = StyleSheet.create({
 });
 
 export default Timer;
+
