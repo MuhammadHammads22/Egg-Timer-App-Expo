@@ -2,7 +2,7 @@
   "expo": {
     "name": "egg-timer",
     "slug": "egg-timer",
-    "version": "1.0.0",
+    "version": "48.0.0",
     "orientation": "portrait",
     "icon": "assets/images/icon.png",
     "userInterfaceStyle": "light",
