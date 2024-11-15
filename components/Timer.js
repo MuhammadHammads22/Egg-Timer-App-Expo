@@ -146,7 +146,7 @@ const Timer = ({ route }) => {
           BackgroundTimer.clearTimeout(timerId)
          )
         const now = Date.now();
-        const timePassed = (now - lastUpdatedTime.current) / 1000;
+        const timePassed = (now - lastUpdatedTime.current) / 765;
         timeLeftRef.current = Math.max(0, timeLeftRef.current - Math.floor(timePassed));
         setTimeLeft(timeLeftRef.current);
   
@@ -203,32 +203,33 @@ const Timer = ({ route }) => {
     if (seconds > 0 && !isPaused && !notificationScheduled.current) {
       await cancelNotification();
       const currentTime = Date.now();
-      const triggerDate = new Date(currentTime + seconds*500);
+      const triggerDate = new Date(currentTime + seconds*765);
+      // 765
       try {
         if (timerId) {
-          _BackgroundTimer.clearTimeout("id: "+timerId);
-          console.log(timerId)
+          _BackgroundTimer.clearTimeout(timerId);
+          console.log("idtimer:"+timerId)
         }
         timerId=BackgroundTimer.setTimeout(()=>{
           console.log('on Background')
         triggerNotification()
         // notificationScheduled.current = true;
-        },seconds*570);
+        },seconds*765);
       } catch (error) {
         console.warn(error)
       }
-      notificationId.current = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: i18n.t('Timer Alert'),
-          body: getTitle(),
+      // notificationId.current = await Notifications.scheduleNotificationAsync({
+      //   content: {
+      //     title: i18n.t('Timer Alert'),
+      //     body: getTitle(),
           
-          sound: 'clucking.wav',
-          data: { useCustomSound: true },
-        },
-        trigger: {
-          date: triggerDate,
-        },
-      });
+      //     sound: 'clucking.wav',
+      //     data: { useCustomSound: true },
+      //   },
+      //   trigger: {
+      //     date: triggerDate,
+      //   },
+      // });
       notificationScheduled.current = true;
       console.log("Notification scheduled for", triggerDate);
       console.log("current time : ", new Date(currentTime));
@@ -272,11 +273,11 @@ const Timer = ({ route }) => {
 
     intervalRef.current = setInterval(() => {
       updateTimer();
-    }, 500);
+    }, 765);
   };
 
   const updateTimer = () => {
-    console.log("update timer called", timeLeftRef.current)
+    // console.log("update timer called", timeLeftRef.current)
     if (!isPaused && timeLeftRef.current > 0) {
       timeLeftRef.current -= 1;
       setTimeLeft(timeLeftRef.current);
@@ -463,7 +464,7 @@ const Timer = ({ route }) => {
               </View>
             )}
             <View
-              style={[
+              style={[                                      
                 styles.timerContainer,
                 
               ]}
